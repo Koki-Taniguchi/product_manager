@@ -1,0 +1,74 @@
+<div class="container">
+<div class="row">
+<div class="form col-3">
+  <%= form_with model: Product.new, url: api_v1_products_path do |f| %>
+    <div>
+    <%= f.label :title %><br>
+    <%= f.text_field :title %>
+    </div>
+    <div>
+    <%= f.label :text %><br>
+    <%= f.text_area :text %>
+    </div>
+    <div>
+    <%= f.label :price %><br>
+    <%= f.number_field :price %>
+    </div>
+    <div>
+    <%= f.label :image %><br>
+    <%= f.file_field :image %>
+    </div>
+    <%= f.submit "新規投稿", class: "btn btn-primary create" %>
+  <% end %>
+</div>
+
+<div class="wrapper col-9">
+
+  <div class="search">
+  <%= form_with url: search_api_v1_products_path do |f| %>
+    <%= f.label :search %><br>
+    <%= f.text_field :search %>
+    <%= f.submit "検索", class: "btn btn-primary search" %>
+  <% end %>
+</div>
+
+  <table>
+    <thead>
+      <tr>
+        <td>title</td>
+        <td>text</td>
+        <td>price</td>
+        <td></td>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+</div>
+</div>
+</div>
+
+<script>
+$(function(){
+  $.ajax({
+    url:'./api/v1/products',
+    type:'get'
+  }).done( (datas) => {
+    let aaa;
+    datas.forEach(function(res){
+      aaa += '<tr><td>' + res.title + '</td><td>' + res.text + '</td><td>' + res.price +'</td></tr>';
+    });
+    $("tbody").html(aaa);
+  });
+
+  $('.create').click(function(){
+    $.ajax({
+    }).done( (data) => {
+      console.log(data);
+      let bbb = $("tbody").html();
+      bbb += '<tr><td>' + data.title + '</td><td>' + data.text + '</td><td>' + data.price +'</td></tr>';
+      $('tbody').html(bbb);
+    })
+  });
+});
+</script>
