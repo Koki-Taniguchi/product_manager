@@ -1,36 +1,35 @@
 <div class="container">
 <div class="row">
-<div class="form col-3">
-  <%= form_with model: Product.new, url: api_v1_products_path do |f| %>
+<div class="create-form col-3">
+  <form>
     <div>
-    <%= f.label :title %><br>
-    <%= f.text_field :title %>
+      <label for="product_title">Title</label><br>
+      <input type="text" name="product[title]" id="title" />
     </div>
     <div>
-    <%= f.label :text %><br>
-    <%= f.text_area :text %>
+      <label for="product_text">Text</label><br>
+      <textarea name="product[text]" id="text"></textarea>
     </div>
     <div>
-    <%= f.label :price %><br>
-    <%= f.number_field :price %>
+      <label for="product_price">Price</label><br>
+      <input type="number" name="product[price]" id="price" />
     </div>
     <div>
-    <%= f.label :image %><br>
-    <%= f.file_field :image %>
+      <label for="product_image">Image</label><br>
+      <input type="file" name="product[image]" id="image" />
     </div>
-    <%= f.submit "新規投稿", class: "btn btn-primary create" %>
-  <% end %>
+    <button  type="button" class="btn btn-primary create">新規投稿</buttom>
+  </form>
 </div>
 
 <div class="wrapper col-9">
-
-  <div class="search">
-  <%= form_with url: search_api_v1_products_path do |f| %>
-    <%= f.label :search %><br>
-    <%= f.text_field :search %>
-    <%= f.submit "検索", class: "btn btn-primary search" %>
-  <% end %>
-</div>
+  <div class="search-box">
+    <form>
+      <label for="search">Search</label><br>
+      <input type="text" name="search" id="search" />
+      <button  type="button" class="btn btn-primary search">タイトルで検索</buttom>
+    </form>
+  </div>
 
   <table>
     <thead>
@@ -62,12 +61,35 @@ $(function(){
   });
 
   $('.create').click(function(){
+    var form = $('.create-form form').serialize();
+    $('.create-form form').find('#title').val("");
+    $('.create-form form').find('#text').val("");
+    $('.create-form form').find('#price').val("");
+    $('.create-form form').find('#image').val("");
     $.ajax({
+      url: './api/v1/products',
+      type: 'post',
+      data: form
     }).done( (data) => {
-      console.log(data);
       let bbb = $("tbody").html();
       bbb += '<tr><td>' + data.title + '</td><td>' + data.text + '</td><td>' + data.price +'</td></tr>';
       $('tbody').html(bbb);
+    })
+  });
+
+  $('.search').click(function(){
+    var form = $('.search-box form').serialize();
+    $('.search-box form').find('#search').val("");
+    $.ajax({
+      url: './api/v1/products/search',
+      type: 'post',
+      data: form
+    }).done( (datas) => {
+      let aaa;
+      datas.forEach(function(res){
+        aaa += '<tr><td>' + res.title + '</td><td>' + res.text + '</td><td>' + res.price +'</td></tr>';
+      });
+      $("tbody").html(aaa);
     })
   });
 });
