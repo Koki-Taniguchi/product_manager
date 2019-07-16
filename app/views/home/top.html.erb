@@ -22,23 +22,32 @@
     </div>
     <div>
       <label>Shop</label>
-      <select name="product[shop_id]">
-        <option value="1">test</option>
-      </select>
+      <select name="product[shop_id]" id="shops"></select>
     </div>
-    <button  type="button" class="btn btn-primary create">新規投稿</buttom>
+    <button  type="button" class="btn btn-success create">新規投稿</buttom>
   </form>
 </div>
 
 <div class="wrapper col-9">
-  <div class="search-box">
+<div class="content row">
+  <div class="search-box col-6">
     <form>
-      <label for="search">Search</label><br>
+      <label>Search</label><br>
       <input type="text" name="search" id="search" />
-      <button  type="button" class="btn btn-primary search">タイトルで検索</buttom>
+      <button type="button" class="btn btn-info search">タイトルで検索</buttom>
     </form>
   </div>
 
+  <div class="shop-select col-6">
+    <form>
+      <label>ShopSelect</label><br>
+      <select name="product[shop_id]" id="shops_select"></select>
+      <button type="button" class="btn btn-info select">店舗で絞込</buttom>
+    </form>
+  </div>
+</div>
+
+<div class="row">
   <table>
     <thead>
       <tr>
@@ -52,6 +61,7 @@
     <tbody>
     </tbody>
   </table>
+  </div>
 </div>
 </div>
 </div>
@@ -59,14 +69,23 @@
 <script>
 $(function(){
   $.ajax({
-    url:'./api/v1/products',
+    url:'./api/v1/shops',
     type:'get'
   }).done( (datas) => {
     let tag_data;
-    datas.forEach(function(data){
-      tag_data += '<tr id="' + data.id + '"><td class="image"><img src=".' + data.image.url + '" width="70" height="70" border="0" /></td><td class="title">' + data.title + '</td><td class="text">' + data.text + '</td><td class="price">' + data.price + '</td><td><button type="button" class="btn btn-primary edit" value='+ data.id + '>編集</button>' + '</td><td><button type="button" class="btn btn-primary delete" value='+ data.id + '>削除</button></td></tr>';
+    let products = datas.products;
+    products.forEach(function(product){
+      tag_data += '<tr id="' + product.id + '"><td class="image"><img src=".' + product.image.url + '" width="70" height="70" border="0" /></td><td class="title">' + product.title + '</td><td class="text">' + product.text + '</td><td class="price">' + product.price + '</td><td><button type="button" class="btn btn-primary edit" value='+ product.id + '>編集</button>' + '</td><td><button type="button" class="btn btn-danger delete" value='+ product.id + '>削除</button></td></tr>';
     });
     $("tbody").html(tag_data);
+
+    let shop_data = '<option value=""></option>';
+    let shops = datas.shops;
+    shops.forEach(function(shop){
+      shop_data += '<option value="' + shop.id + '">' + shop.name + '</option>'
+    });
+    $("#shops").html(shop_data);
+    $("#shops_select").html(shop_data);
   });
 
   $('.create').click(function(){
@@ -84,7 +103,7 @@ $(function(){
       dataType: 'json'
     }).done( (data) => {
       let tag_data = $("tbody").html();
-      tag_data += '<tr id="' + data.id + '"><td class="image"><img src=".' + data.image.url + '" width="70" height="70" border="0" /></td><td class="title">' + data.title + '</td><td class="text">' + data.text + '</td><td class="price">' + data.price + '</td><td><button type="button" class="btn btn-primary edit" value='+ data.id + '>編集</button>' + '</td><td><button type="button" class="btn btn-primary delete" value='+ data.id + '>削除</button></td></tr>';
+      tag_data += '<tr id="' + data.id + '"><td class="image"><img src=".' + data.image.url + '" width="70" height="70" border="0" /></td><td class="title">' + data.title + '</td><td class="text">' + data.text + '</td><td class="price">' + data.price + '</td><td><button type="button" class="btn btn-primary edit" value='+ data.id + '>編集</button>' + '</td><td><button type="button" class="btn btn-danger delete" value='+ data.id + '>削除</button></td></tr>';
       $('tbody').html(tag_data);
     })
   });
@@ -94,7 +113,7 @@ $(function(){
     let before_title = $('#'+id).find('.title').text();
     let before_text = $('#'+id).find('.text').text();
     var before_price = Number($('#'+id).find('.price').text());
-    let tag_data = '<td><input type="file" name="product[image]" id="edit_image" /></td><td><input type="text" name="product[title]" id="edit_title" value="' + before_title + '"/></td><td><textarea name="product[text]" id="edit_text">' + before_text + '</textarea></td><td><input type="number" name="product[price]" id="edit_price" value="' + before_price + '"/></td><td><button  type="button" class="btn btn-primary update" value='+ id + '>更新</buttom></td>';
+    let tag_data = '<td><input type="file" name="product[image]" id="edit_image" /></td><td><input type="text" name="product[title]" id="edit_title" value="' + before_title + '"/></td><td><textarea name="product[text]" id="edit_text">' + before_text + '</textarea></td><td><input type="number" name="product[price]" id="edit_price" value="' + before_price + '"/></td><td><button  type="button" class="btn btn-warning update" value='+ id + '>更新</buttom></td>';
     $('#'+id).html(tag_data);
   });
 
@@ -120,7 +139,7 @@ $(function(){
       contentType: false,
       dataType: 'json'
     }).done( (data) => {
-      let after_datas = '<td class="image"><img src=".' + data.image.url + '" width="70" height="70" border="0" /></td><td class="title">' + data.title + '</td><td class="text">' + data.text + '</td><td class="price">' + data.price + '</td><td><button type="button" class="btn btn-primary edit" value='+ data.id + '>編集</button>' + '</td><td><button type="button" class="btn btn-primary delete" value='+ data.id + '>削除</button></td>';
+      let after_datas = '<td class="image"><img src=".' + data.image.url + '" width="70" height="70" border="0" /></td><td class="title">' + data.title + '</td><td class="text">' + data.text + '</td><td class="price">' + data.price + '</td><td><button type="button" class="btn btn-primary edit" value='+ data.id + '>編集</button>' + '</td><td><button type="button" class="btn btn-danger delete" value='+ data.id + '>削除</button></td>';
       $('#'+id).html(after_datas);
     })
   });
@@ -146,7 +165,21 @@ $(function(){
     }).done( (datas) => {
       let tag_data;
       datas.forEach(function(data){
-        tag_data += '<tr id="' + data.id + '"><td class="image"><img src=".' + data.image.url + '" width="70" height="70" border="0" /></td><td class="title">' + data.title + '</td><td class="text">' + data.text + '</td><td class="price">' + data.price + '</td><td><button type="button" class="btn btn-primary edit" value='+ data.id + '>編集</button>' + '</td><td><button type="button" class="btn btn-primary delete" value='+ data.id + '>削除</button></td></tr>';
+        tag_data += '<tr id="' + data.id + '"><td class="image"><img src=".' + data.image.url + '" width="70" height="70" border="0" /></td><td class="title">' + data.title + '</td><td class="text">' + data.text + '</td><td class="price">' + data.price + '</td><td><button type="button" class="btn btn-primary edit" value='+ data.id + '>編集</button>' + '</td><td><button type="button" class="btn btn-danger delete" value='+ data.id + '>削除</button></td></tr>';
+      });
+      $("tbody").html(tag_data);
+    })
+  });
+
+  $('.select').click(function(){
+    var id = $('#shops_select option:selected').val();
+    $.ajax({
+      url: './api/v1/shops/' + id,
+      type: 'get',
+    }).done( (data) => {
+      let tag_data;
+      data.shop.products.forEach(function(product){
+        tag_data += '<tr id="' + product.id + '"><td class="image"><img src=".' + product.image.url + '" width="70" height="70" border="0" /></td><td class="title">' + product.title + '</td><td class="text">' + product.text + '</td><td class="price">' + product.price + '</td><td><button type="button" class="btn btn-primary edit" value='+ product.id + '>編集</button>' + '</td><td><button type="button" class="btn btn-danger delete" value='+ product.id + '>削除</button></td></tr>';
       });
       $("tbody").html(tag_data);
     })
