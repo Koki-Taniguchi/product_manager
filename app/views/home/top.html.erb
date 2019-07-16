@@ -34,10 +34,11 @@
   <table>
     <thead>
       <tr>
+        <td>image</td>
         <td>title</td>
         <td>text</td>
         <td>price</td>
-        <td></td>
+        <td colspan="2"></td>
       </tr>
     </thead>
     <tbody>
@@ -53,25 +54,15 @@ $(function(){
     url:'./api/v1/products',
     type:'get'
   }).done( (datas) => {
-    let aaa;
-    datas.forEach(function(res){
-      aaa += '<tr id="' + res.id + '"><td class="title">' + res.title + '</td><td class="text">' + res.text + '</td><td class="price">' + res.price + '</td><td><button type="button" class="btn btn-primary edit" value='+ res.id + '>編集</button>' + '</td><td><button type="button" class="btn btn-primary delete" value='+ res.id + '>削除</button></td></tr>';
+    let tag_data;
+    datas.forEach(function(data){
+      tag_data += '<tr id="' + data.id + '"><td class="image"><img src=".' + data.image.url + '" width="70" height="70" border="0" /></td><td class="title">' + data.title + '</td><td class="text">' + data.text + '</td><td class="price">' + data.price + '</td><td><button type="button" class="btn btn-primary edit" value='+ data.id + '>編集</button>' + '</td><td><button type="button" class="btn btn-primary delete" value='+ data.id + '>削除</button></td></tr>';
     });
-    $("tbody").html(aaa);
+    $("tbody").html(tag_data);
   });
 
   $('.create').click(function(){
-    var form = $('.create-form form').serialize();
-    var file = document.querySelector('#image').files[0]
-    if (file){
-      var reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = function () {
-        console.log(reader.result);
-        form += "&product%5Bimage%5D=" + "test";
-        console.log(form);
-      };
-    }
+    var formData = new FormData($('.create-form form').get(0));
     $('.create-form form').find('#title').val("");
     $('.create-form form').find('#text').val("");
     $('.create-form form').find('#price').val("");
@@ -79,11 +70,14 @@ $(function(){
     $.ajax({
       url: './api/v1/products',
       type: 'post',
-      data: form
+      data: formData,
+      processData: false,
+      contentType: false,
+      dataType: 'json'
     }).done( (data) => {
-      let bbb = $("tbody").html();
-      bbb += '<tr id="' + data.id + '"><td class="title">' + data.title + '</td><td class="text">' + data.text + '</td><td class="price">' + data.price + '</td><td><button type="button" class="btn btn-primary edit" value='+ data.id + '>編集</button>' + '</td><td><button type="button" class="btn btn-primary delete" value='+ data.id + '>削除</button></td></tr>';
-      $('tbody').html(bbb);
+      let tag_data = $("tbody").html();
+      tag_data += '<tr id="' + data.id + '"><td class="image"><img src=".' + data.image.url + '" width="70" height="70" border="0" /></td><td class="title">' + data.title + '</td><td class="text">' + data.text + '</td><td class="price">' + data.price + '</td><td><button type="button" class="btn btn-primary edit" value='+ data.id + '>編集</button>' + '</td><td><button type="button" class="btn btn-primary delete" value='+ data.id + '>削除</button></td></tr>';
+      $('tbody').html(tag_data);
     })
   });
 
@@ -92,7 +86,7 @@ $(function(){
     let before_title = $('#'+id).find('.title').text();
     let before_text = $('#'+id).find('.text').text();
     var before_price = Number($('#'+id).find('.price').text());
-    let tag_data = '<td><input type="text" name="product[title]" id="edit_title" value="' + before_title + '"/></td><td><textarea name="product[text]" id="edit_text">' + before_text + '</textarea></td><td><input type="number" name="product[price]" id="edit_price" value="' + before_price + '"/></td><td><button  type="button" class="btn btn-primary update" value='+ id + '>更新</buttom></td>';
+    let tag_data = '<td><input type="file" name="product[image]" id="edit_image" /></td><td><input type="text" name="product[title]" id="edit_title" value="' + before_title + '"/></td><td><textarea name="product[text]" id="edit_text">' + before_text + '</textarea></td><td><input type="number" name="product[price]" id="edit_price" value="' + before_price + '"/></td><td><button  type="button" class="btn btn-primary update" value='+ id + '>更新</buttom></td>';
     $('#'+id).html(tag_data);
   });
 
@@ -101,15 +95,22 @@ $(function(){
     var u = './api/v1/products/' + id;
     let after_title = $('#'+id).find('#edit_title').val();
     let after_text = $('#'+id).find('#edit_text').val();
-    var after_price = $('#'+id).find('#edit_price').val();
-    var form_data = "product%5Btitle%5D=" + after_title + "&product%5Btext%5D=" + after_text + "&product%5Bprice%5D=" + after_price;
+    let after_price = $('#'+id).find('#edit_price').val();
+    let after_image = $('#'+id).find('#edit_image').prop('files')[0];
+    var form_data = new FormData();
+    form_data.append("product[title]", after_title);
+    form_data.append("product[text]", after_text);
+    form_data.append("product[price]", after_price);
+    form_data.append("product[image]", after_image, after_image.name);
     $.ajax({
       url: u,
       type: 'patch',
-      data: form_data
+      data: form_data,
+      processData: false,
+      contentType: false,
+      dataType: 'json'
     }).done( (data) => {
-      console.log(data);
-      let after_datas = '<td class="title">' + data.title + '</td><td class="text">' + data.text + '</td><td class="price">' + data.price + '</td><td><button type="button" class="btn btn-primary edit" value='+ data.id + '>編集</button>' + '</td><td><button type="button" class="btn btn-primary delete" value='+ data.id + '>削除</button></td>';
+      let after_datas = '<td class="image"><img src=".' + data.image.url + '" width="70" height="70" border="0" /></td><td class="title">' + data.title + '</td><td class="text">' + data.text + '</td><td class="price">' + data.price + '</td><td><button type="button" class="btn btn-primary edit" value='+ data.id + '>編集</button>' + '</td><td><button type="button" class="btn btn-primary delete" value='+ data.id + '>削除</button></td>';
       $('#'+id).html(after_datas);
     })
   });
@@ -133,11 +134,11 @@ $(function(){
       type: 'post',
       data: form
     }).done( (datas) => {
-      let aaa;
-      datas.forEach(function(res){
-        aaa += '<tr id="' + res.id + '"><td class="title">' + res.title + '</td><td class="text">' + res.text + '</td><td class="price">' + res.price + '</td><td><button type="button" class="btn btn-primary edit" value='+ res.id + '>編集</button>' + '</td><td><button type="button" class="btn btn-primary delete" value='+ res.id + '>削除</button></td></tr>';
+      let tag_data;
+      datas.forEach(function(data){
+        tag_data += '<tr id="' + data.id + '"><td class="image"><img src=".' + data.image.url + '" width="70" height="70" border="0" /></td><td class="title">' + data.title + '</td><td class="text">' + data.text + '</td><td class="price">' + data.price + '</td><td><button type="button" class="btn btn-primary edit" value='+ data.id + '>編集</button>' + '</td><td><button type="button" class="btn btn-primary delete" value='+ data.id + '>削除</button></td></tr>';
       });
-      $("tbody").html(aaa);
+      $("tbody").html(tag_data);
     })
   });
 });
