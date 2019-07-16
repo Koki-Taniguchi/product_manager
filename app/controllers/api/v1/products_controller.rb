@@ -18,7 +18,7 @@ module Api
 
       def update
         @product = Product.find(params[:id])
-        if @product.update(product_params)
+        if @product.update(blank_reject_params)
           render json: @product
         else
           render json: @product.errors, status: :unprocessable_entity
@@ -39,7 +39,11 @@ module Api
       private
 
       def product_params
-        params.require(:product).permit(:title, :text, :image, :price)
+        params.require(:product).permit(:title, :text, :image, :price, :shop_id)
+      end
+
+      def blank_reject_params
+        product_params.reject{ |key, value| value.blank? }
       end
     end
   end

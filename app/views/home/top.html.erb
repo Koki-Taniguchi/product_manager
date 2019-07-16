@@ -1,22 +1,30 @@
+<h1>Welcome to ProductManager!</h1>
+
 <div class="container">
 <div class="row">
 <div class="create-form col-3">
   <form>
     <div>
-      <label for="product_title">Title</label><br>
+      <label>Title</label><br>
       <input type="text" name="product[title]" id="title" />
     </div>
     <div>
-      <label for="product_text">Text</label><br>
+      <label>Text</label><br>
       <textarea name="product[text]" id="text"></textarea>
     </div>
     <div>
-      <label for="product_price">Price</label><br>
+      <label>Price</label><br>
       <input type="number" name="product[price]" id="price" />
     </div>
     <div>
-      <label for="product_image">Image</label><br>
+      <label>Image</label><br>
       <input type="file" name="product[image]" id="image" />
+    </div>
+    <div>
+      <label>Shop</label>
+      <select name="product[shop_id]">
+        <option value="1">test</option>
+      </select>
     </div>
     <button  type="button" class="btn btn-primary create">新規投稿</buttom>
   </form>
@@ -101,7 +109,9 @@ $(function(){
     form_data.append("product[title]", after_title);
     form_data.append("product[text]", after_text);
     form_data.append("product[price]", after_price);
+    if(after_image){
     form_data.append("product[image]", after_image, after_image.name);
+    }
     $.ajax({
       url: u,
       type: 'patch',
