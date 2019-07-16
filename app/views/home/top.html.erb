@@ -55,8 +55,7 @@ $(function(){
   }).done( (datas) => {
     let aaa;
     datas.forEach(function(res){
-      console.log(res.id);
-      aaa += '<tr id="' + res.id + '"><td>' + res.title + '</td><td>' + res.text + '</td><td>' + res.price +  '</td><td><button type="button" class="btn btn-primary delete" value='+ res.id + '>削除</button></td></tr>';
+      aaa += '<tr id="' + res.id + '"><td class="title">' + res.title + '</td><td class="text">' + res.text + '</td><td class="price">' + res.price + '</td><td><button type="button" class="btn btn-primary edit" value='+ res.id + '>編集</button>' + '</td><td><button type="button" class="btn btn-primary delete" value='+ res.id + '>削除</button></td></tr>';
     });
     $("tbody").html(aaa);
   });
@@ -83,13 +82,39 @@ $(function(){
       data: form
     }).done( (data) => {
       let bbb = $("tbody").html();
-      bbb += '<tr><td>' + data.title + '</td><td>' + data.text + '</td><td>' + data.price +'</td></tr>';
+      bbb += '<tr id="' + data.id + '"><td class="title">' + data.title + '</td><td class="text">' + data.text + '</td><td class="price">' + data.price + '</td><td><button type="button" class="btn btn-primary edit" value='+ data.id + '>編集</button>' + '</td><td><button type="button" class="btn btn-primary delete" value='+ data.id + '>削除</button></td></tr>';
       $('tbody').html(bbb);
     })
   });
 
+  $(document).on('click', '.edit', function(){
+    var id = $(this).val();
+    let before_title = $('#'+id).find('.title').text();
+    let before_text = $('#'+id).find('.text').text();
+    var before_price = Number($('#'+id).find('.price').text());
+    let tag_data = '<td><input type="text" name="product[title]" id="edit_title" value="' + before_title + '"/></td><td><textarea name="product[text]" id="edit_text">' + before_text + '</textarea></td><td><input type="number" name="product[price]" id="edit_price" value="' + before_price + '"/></td><td><button  type="button" class="btn btn-primary update" value='+ id + '>更新</buttom></td>';
+    $('#'+id).html(tag_data);
+  });
+
+  $(document).on('click', '.update', function(){
+    var id = $(this).val();
+    var u = './api/v1/products/' + id;
+    let after_title = $('#'+id).find('#edit_title').val();
+    let after_text = $('#'+id).find('#edit_text').val();
+    var after_price = $('#'+id).find('#edit_price').val();
+    var form_data = "product%5Btitle%5D=" + after_title + "&product%5Btext%5D=" + after_text + "&product%5Bprice%5D=" + after_price;
+    $.ajax({
+      url: u,
+      type: 'patch',
+      data: form_data
+    }).done( (data) => {
+      console.log(data);
+      let after_datas = '<td class="title">' + data.title + '</td><td class="text">' + data.text + '</td><td class="price">' + data.price + '</td><td><button type="button" class="btn btn-primary edit" value='+ data.id + '>編集</button>' + '</td><td><button type="button" class="btn btn-primary delete" value='+ data.id + '>削除</button></td>';
+      $('#'+id).html(after_datas);
+    })
+  });
+
   $(document).on('click', '.delete', function(){
-    console.log('start');
     var id = $(this).val();
     var u = './api/v1/products/' + id;
     $.ajax({
@@ -110,21 +135,10 @@ $(function(){
     }).done( (datas) => {
       let aaa;
       datas.forEach(function(res){
-        aaa += '<tr><td>' + res.title + '</td><td>' + res.text + '</td><td>' + res.price +'</td></tr>';
+        aaa += '<tr id="' + res.id + '"><td class="title">' + res.title + '</td><td class="text">' + res.text + '</td><td class="price">' + res.price + '</td><td><button type="button" class="btn btn-primary edit" value='+ res.id + '>編集</button>' + '</td><td><button type="button" class="btn btn-primary delete" value='+ res.id + '>削除</button></td></tr>';
       });
       $("tbody").html(aaa);
     })
   });
 });
-
-function getBase64(file) {
-   var reader = new FileReader();
-   reader.readAsDataURL(file);
-   reader.onload = function () {
-     console.log(reader.result);
-   };
-   reader.onerror = function (error) {
-     console.log('Error: ', error);
-   };
-}
 </script>

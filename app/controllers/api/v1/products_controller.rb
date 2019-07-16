@@ -19,7 +19,7 @@ module Api
       def update
         @product = Product.find(params[:id])
         if @product.update(product_params)
-          render :show, status: :ok
+          render json: @product
         else
           render json: @product.errors, status: :unprocessable_entity
         end
