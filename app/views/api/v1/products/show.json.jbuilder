@@ -1,1 +1,0 @@
-json.product @product, :id, :title, :text, :image, :price, :shop_id

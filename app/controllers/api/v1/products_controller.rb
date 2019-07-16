@@ -26,9 +26,9 @@ module Api
       end
 
       def destroy
-        @product = Product.find(params[:id])
-        @product.destroy
-        render json: @product, status: :destroyed
+        product = Product.find(params[:id])
+        product.destroy
+        @products = Product.all
       end
 
       def search

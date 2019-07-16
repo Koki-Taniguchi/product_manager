@@ -55,13 +55,24 @@ $(function(){
   }).done( (datas) => {
     let aaa;
     datas.forEach(function(res){
-      aaa += '<tr><td>' + res.title + '</td><td>' + res.text + '</td><td>' + res.price +'</td></tr>';
+      console.log(res.id);
+      aaa += '<tr id="' + res.id + '"><td>' + res.title + '</td><td>' + res.text + '</td><td>' + res.price +  '</td><td><button type="button" class="btn btn-primary delete" value='+ res.id + '>削除</button></td></tr>';
     });
     $("tbody").html(aaa);
   });
 
   $('.create').click(function(){
     var form = $('.create-form form').serialize();
+    var file = document.querySelector('#image').files[0]
+    if (file){
+      var reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = function () {
+        console.log(reader.result);
+        form += "&product%5Bimage%5D=" + "test";
+        console.log(form);
+      };
+    }
     $('.create-form form').find('#title').val("");
     $('.create-form form').find('#text').val("");
     $('.create-form form').find('#price').val("");
@@ -74,6 +85,18 @@ $(function(){
       let bbb = $("tbody").html();
       bbb += '<tr><td>' + data.title + '</td><td>' + data.text + '</td><td>' + data.price +'</td></tr>';
       $('tbody').html(bbb);
+    })
+  });
+
+  $(document).on('click', '.delete', function(){
+    console.log('start');
+    var id = $(this).val();
+    var u = './api/v1/products/' + id;
+    $.ajax({
+      url: u,
+      type: 'delete'
+    }).done( (data) => {
+      $('#'+id).remove();
     })
   });
 
@@ -93,4 +116,15 @@ $(function(){
     })
   });
 });
+
+function getBase64(file) {
+   var reader = new FileReader();
+   reader.readAsDataURL(file);
+   reader.onload = function () {
+     console.log(reader.result);
+   };
+   reader.onerror = function (error) {
+     console.log('Error: ', error);
+   };
+}
 </script>
